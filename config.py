@@ -1,0 +1,11 @@
+bgcolor = (0,0,0)
+linecolor = (0,0,0)
+tilesize = 0
+height = 0
+width = 0
+fps = 0
+wallcolor = (0,0,0)
+playercolor = (0,0,0)
+map_data = []
+goalcolor = (0,0,0)
+trapcolor = (0,0,0)
