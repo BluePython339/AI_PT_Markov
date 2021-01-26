@@ -56,60 +56,78 @@ class MarkovDecisionProblem():
         elif self.grid[pos] == 'T':
             return -1
         elif self.grid[pos] == 'G':
-            return 2
+            return 10
 
     def calc_val(self,x,y,dx,dy,V):
         res = 0
         fpos = (dx+x, dy+y)
         pos = (x,y)
         lMove, rMove, bMove = self.get_fpos(dx,dy, pos)
+        #print("future postion is: {}".format(fpos))
         if self.valid_move(*lMove):
+            #print("leftMove is: {}".format(lMove))
             res += self.probs.get('sidestep')*(self.get_reward(lMove))+(self.discounter*V[lMove])
         if self.valid_move(*rMove):
+            #print("rightMove is: {}".format(rMove))
             res += self.probs.get('sidestep') * (self.get_reward(rMove) + (self.discounter * V[rMove]))
-        #if self.valid_move(*bMove):
-        #    res += self.probs.get('backstep')*(self.get_reward(bMove)+(self.discounter*V[bMove]))
+        if self.valid_move(*bMove):
+            #print("backstep is: {}".format(bMove))
+            res += self.probs.get('backstep')*(self.get_reward(bMove)+(self.discounter*V[bMove]))
         res += self.probs.get('frontstep')*(self.get_reward(fpos)+(self.discounter*V[fpos]))
         return res
 
     #implement value itteration
     def value_itteration(self, max_lim, delta):
         k = 0
+        term  = False
         gridshape = np.shape(self.grid)
         print(gridshape)
         V = np.zeros(gridshape)
         V[self.goalx,self.goaly] = 1.0
-        p = np.full(gridshape, 0 ,dtype='i,i')
-        v = np.zeros(gridshape)
-        while k <= max_lim:
+        p = np.full(gridshape, 0 , dtype='i,i') #grid of shape gridshape filled with (0,0)
+        while k <= max_lim and not term:
             k +=1
+            print(k)
             v = np.zeros(gridshape)
             for pos in np.ndindex(V.shape):
+                #print("current pos: {}".format(pos))
                 if self.grid[pos] == "1":
+                    #print("this is a wall")
+                    #print('\n'*1)
                     v[pos] = np.NINF
                     p[pos] = (0,0)
                 else:
                     vals = []
                     for dir in self.directions:
+                        #print("now checking direction: {}".format(dir))
                         if self.valid_move(*pos, *dir):
-                            vals.append((self.calc_val(*pos, *dir, V),dir))
+                            #print("this is a valid move")
+                            a = (self.calc_val(*pos, *dir, V),dir)
+                            #print("Q value of this move: {}".format(a))
+                            vals.append(a)
+                        #print('\n'*1)
                     if not vals:
                         vals.append((np.NINF, (0,0)))
                     ulti = max(vals, key= lambda i: i[0])
                     p[pos] = ulti[1]
                     v[pos] = ulti[0]
-            v[self.goalx,self.goaly] = 1.0
+                #print(v)
+                #a = input("press enter to continue...")
+            #print("Goal located at: {}".format((self.goalx, self.goaly)))
+            #v[self.goalx,self.goaly] = 1.0
+            #print(v)
+            #input("press enter to continue to policy execution...")
             p[self.goalx,self.goaly] = (2,2)
             if np.allclose(V,v, atol=delta):
-                break
+                term = True
             else:
                 V = v
         with open("resv", 'w+') as a:
             for i in v[::-1]:
-                a.write("|||".join(map(str, i[::-1]))+'\n')
+                a.write("|||".join(map(str, i))+'\n')
             a.write("\n"*3)
             for i in p[::-1]:
-                a.write("|".join(map(str, i[::-1]))+'\n')
+                a.write("|".join(map(str, i))+'\n')
 
             a.write("\n" * 3)
             for i in self.grid:

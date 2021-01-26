@@ -25,7 +25,7 @@ class Game:
         transitions = {'frontstep': 0.7, 'sidestep': 0.2, 'backstep': 0.1}
         AI = MarkovDecisionProblem(self, 0.7, transitions)
         v, p = AI.value_itteration(max_lim, delta)
-        return self.convert_to_steps(p)
+        return self.convert_to_steps(p), v
 
 
 
@@ -42,26 +42,30 @@ class Game:
             tcol = []
             for col, tile in enumerate(tiles):
                 if tile == '1':
-                    Wall(self, col, row)
+                    Wall(self, row, col)
                 if tile == 'P':
-                    self.player = Player(self, col, row)
+                    self.player = Player(self, row,col)
                 if tile == 'G':
-                    self.goal_pos = (col, row)
-                    Goal_tile(self, col, row)
+                    self.goal_pos = (row, col)
+                    Goal_tile(self, row, col)
                 if tile == 'T':
-                    Trap_tile(self, col, row)
+                    Trap_tile(self, row, col)
                 if tile != '\n':
                     tcol.append(tile)
             self.grid.append(tcol)
 
-    def play(self, policy):
+    def play(self, policy,value_net):
         self.playing = True
         while self.playing:
             self.dt = self.clock.tick(config.fps) / 1000
-            self.player.move(*policy[self.player.x][ self.player.y])
             self.update()
             self.draw()
-            time.sleep(1)
+            self.ai_events()
+            print("policy on position x: {} y: {} is: {}".format(self.player.x, self.player.y, policy[self.player.x][self.player.y]))
+            print("Value of predicted move: {}".format(value_net[self.player.x][self.player.y]))
+            self.player.move(*policy[self.player.x][ self.player.y])
+            time.sleep(0.5)
+        input("WE MUTFUCKING MADE IT")
 
     def convert_to_steps(self, policy):
         final =[]
@@ -100,6 +104,11 @@ class Game:
         self.draw_grid()
         self.all_sprites.draw(self.screen)
         pg.display.flip()
+
+    def ai_events(self):
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                self.quit()
 
     def events(self):
         # catch all events here
@@ -146,7 +155,8 @@ if __name__ == "__main__":
     #g.show_start_screen()
 
     g.new()
-    policy = g.get_policy(20, 0.01)
-    g.play(policy)
+    policy, value_net = g.get_policy(2000, 0.000000000000001)
+    print("policy calculated, executing policy")
+    g.play(policy, value_net)
     #g.run()
     #g.show_go_screen()
