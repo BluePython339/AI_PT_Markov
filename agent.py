@@ -17,7 +17,6 @@ class Player(pg.sprite.Sprite):
         return (self.x, self.y)
 
     def move(self, dx=0, dy=0):
-
         if not self.collide_with_walls(dx, dy):
             self.x += dx
             self.y += dy
@@ -47,7 +46,7 @@ class Player(pg.sprite.Sprite):
     def collide_with_walls(self, dx=0, dy=0):
         for wall in self.game.walls:
             if wall.x == self.x + dx and wall.y == self.y + dy:
-                self.game.lwall = True
+                #self.game.lwall = True
                 return True
         return False
 

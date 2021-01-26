@@ -3,6 +3,8 @@ import sys
 import config
 from agent import *
 from objects import *
+from Markov import *
+import time
 
 class Game:
     def __init__(self):
@@ -18,6 +20,16 @@ class Game:
 
     def load_data(self):
         pass
+
+    def get_policy(self, max_lim, delta):
+        transitions = {'frontstep': 0.7, 'sidestep': 0.2, 'backstep': 0.1}
+        AI = MarkovDecisionProblem(self, 0.7, transitions)
+        v, p = AI.value_itteration(max_lim, delta)
+        return self.convert_to_steps(p)
+
+
+
+
 
     def new(self):
         # initialize all variables and do all the setup for a new game
@@ -38,6 +50,27 @@ class Game:
                     Goal_tile(self, col, row)
                 if tile == 'T':
                     Trap_tile(self, col, row)
+                if tile != '\n':
+                    tcol.append(tile)
+            self.grid.append(tcol)
+
+    def play(self, policy):
+        self.playing = True
+        while self.playing:
+            self.dt = self.clock.tick(config.fps) / 1000
+            self.player.move(*policy[self.player.x][ self.player.y])
+            self.update()
+            self.draw()
+            time.sleep(1)
+
+    def convert_to_steps(self, policy):
+        final =[]
+        for i in policy:
+            row = []
+            for a in i:
+                row.append((a[0],a[1]))
+            final.append(row)
+        return final
 
     def run(self):
         # game loop - set self.playing = False to end the game
@@ -108,10 +141,12 @@ def read_config(filename):
         config.map_data = data[8:]
 
 if __name__ == "__main__":
-    read_config('testfile')
+    read_config('example1')
     g = Game()
     #g.show_start_screen()
 
     g.new()
-    g.run()
+    policy = g.get_policy(20, 0.01)
+    g.play(policy)
+    #g.run()
     #g.show_go_screen()

@@ -28,6 +28,7 @@ class Goal_tile(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.x = x
         self.y = y
+        self.reward = 1
         self.rect.x = x * config.tilesize
         self.rect.y = y * config.tilesize
 
