@@ -9,3 +9,5 @@ playercolor = (0,0,0)
 map_data = []
 goalcolor = (0,0,0)
 trapcolor = (0,0,0)
+on_goal = False
+Q_learning = False

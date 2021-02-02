@@ -51,3 +51,6 @@ class Trap_tile(pg.sprite.Sprite):
 
     def get_pos(self):
         return (self.x, self.y)
+
+    def get_rev_pos(self):
+        return (self.y, self.x)

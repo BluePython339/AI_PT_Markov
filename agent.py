@@ -22,7 +22,14 @@ class Player(pg.sprite.Sprite):
             self.y += dy
         if self.on_goal():
             pg.display.set_caption("GOAL ACHIEVEDDDDDDD")
-            self.game.playing = False
+            if config.Q_learning:
+                config.on_goal = True
+            else:
+                self.game.playing = False
+
+    def teleport(self ,x, y):
+        self.x = x
+        self.y = y
 
     def up(self):
         self.move(dy=-1)
@@ -41,6 +48,12 @@ class Player(pg.sprite.Sprite):
             if goal.get_pos() == self.get_pos():
                 return True
         return False
+
+    def on_trap(self):
+        for trap in self.game.traps:
+            if trap.get_pos() == self.get_pos():
+                print('Traps are gay')
+
 
 
     def collide_with_walls(self, dx=0, dy=0):
