@@ -101,6 +101,7 @@ class Game:
         count = 0
         AI = MarkovDecisionProblem(self, 0.7)
         qlearner = AI.q_learning(1,0.3, self.player.get_pos())
+        a = 0
         while self.playing:
             count +=1
             self.dt = self.clock.tick(config.fps) / 1000
@@ -110,7 +111,10 @@ class Game:
             move, vals = next(qlearner)
             self.player.move(*move)
             #print(self.player.get_pos())
-            time.sleep(0.1)
+            a+= 1
+          #  print(a)
+            if a > 200000:
+                time.sleep(0.1)
             #print(count)
 
 
@@ -179,7 +183,7 @@ def read_config(filename):
         config.map_data = data[8:]
 
 if __name__ == "__main__":
-    read_config('example1')
+    read_config('Stanford')
     g = Game()
     #g.show_start_screen()
 
